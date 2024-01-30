@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Heap Visualizer</title>
+    <!-- CSS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- Animate CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- JS Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+    <link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet">
+    <!-- Preloader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    <style>
+        @font-face {
+            font-family: alexandria;
+            src: url(assets/font/Alexandria-Regular.ttf);
+        }
+
+        @font-face {
+            font-family: alexandriaLight;
+            src: url(assets/font/Alexandria-Light.ttf);
+        }
+
+        body {
+            font-family: alexandriaLight;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            background: url(assets/img/bg_home.png) fixed no-repeat;
+            background-size: cover;
+            color: #fff;
+            overflow: overlay;
+        }
+
+        /* Node Style */
+        .example .tf-nc {
+            border-radius: 50%;
+            width: 50px;
+            aspect-ratio: 1 / 1;
+            text-align: center;
+            color: white;
+            background-color: black;
+            display: flex;
+            align-items:center;
+            justify-content: center;
+            transition: all 1s ease;
+            z-index: 10;
+            -webkit-animation: fadein 3s; 
+        }
+        
+        /* Vertical Connector Style */
+        .tf-tree .tf-nc:before, .tf-tree .tf-nc:after {
+            border: 1px solid #f28f33;
+            background-color: #f28f33;
+            z-index: 5;
+        }
+
+        /* Horizontal Connector Style */
+        .tf-tree li li:before {
+            border: 1px solid #f28f33;
+            background-color: #f28f33;
+            z-index: 5;
+        } 
+
+        .tf-nc:hover{
+            transform:scale(1.1);
+        }
+        table {
+            table-layout: fixed;
+            font-weight: bold;
+            background: linear-gradient(to right, #d14b71 0%, #f28f33 100%);
+        }
+        #array{
+            font-size: medium;
+            border: 10px;
+            background-image: linear-gradient(to right, #d14b71 0%, #f28f33 100%);
+        }
+
+        input{
+            border-radius: 30pt !important; 
+            text-align: center;
+        }
+
+        button {
+            width: 6em;
+            height: 2.25em;
+            border-radius: 30pt !important;
+            font-size: 15px;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: .5s ease;
+            background-color: transparent;
+            color: white !important;
+        }
+        button::before{
+            content: '';
+            width: 0;
+            height: 2.25em;
+            border-radius: 30pt;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-image: linear-gradient(to right, #d14b71 0%, #f28f33 100%);
+            transition: .5s ease;
+            display: block;
+            z-index: -1;
+        }
+        button:hover::before {
+            width: 9em;
+            background-image: linear-gradient(to right, #d14b71 0%, #f28f33 100%);
+        }
+        button:hover {
+            transform: scale(1.1);
+            background-color: transparent;
+            transition: .5s ease;
+        }
+        
+        #insert{
+            cursor: pointer;
+           
+        }
+        .navbar {
+            background-color: transparent;
+            transition: .5s ease;
+            backdrop-filter: blur(3px);   
+        }
+        .navbar-brand {
+            animation-delay: 3.5s;
+            color: white;
+        }
+        .navbar-brand:hover {
+            background: linear-gradient(to right, #d14b71 0%, #f28f33 50%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: scale(1.1);
+        }
+ 
+        @keyframes changeColor {
+            0%, 100% {
+                background-color: #000;
+            }
+            70% {
+                background-color: red;
+                transform:scale(1.1);
+            }
+        }
+        @-webkit-keyframes fadein {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @-webkit-keyframes fadeout {
+            from { opacity: 1; }
+            to   { opacity: 0; }
+        }
+
+        .preloader{
+            background: #fff url(assets/img/loader.gif) no-repeat center;
+            background-size: 25%;
+            position: fixed;
+            z-index: 999999;
+            width: 100%;
+            height: 100%;
+        }
+        .preloader::before{
+            animation-delay: .5s;
+        }
+
+        iframe {
+            opacity: 0.5;
+            transition: .5s ease;
+            transform: translate(-55px, 0px);
+            border-radius: 100px;
+        }
+        iframe:hover {
+            opacity: 1;
+            transform: translate(0%, 0px);
+            border-radius: 0px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-expand-lg bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand animate__animated animate__zoomIn ms-3" href="home.html">Max Heap Visualizer</a>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <input type="text" id="insert" class="me-3 my-2" >
+                    <button type="button" class="btn me-3 my-2" id="insertBtn">Insert</button>
+                    <button type="button" class="btn me-3 my-2" id="delBtn">Remove Biggest</button>
+                    <button type="button" class="btn me-3 my-2" id="clearBtn">Clear</button>
+                    <button type="button" class="btn me-3 my-2" id="BFS">BFS</button>
+                    <button type="button" class="btn me-3 my-2" id="DFS">DFS</button>
+                    <a href="home.html"><button type="button" class="btn me-3 my-2" id="homeBtn">Home →</button></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid d-flex">
+        <div class="row pt-3 d-flex justify-content-center" style="width:100%">
+            <div class="col-12 table-responsive">
+                <table class="table table-bordered border-dark text-center" id="array">
+                    <tr></tr>
+                </table>
+                <table class="table table-bordered border-dark text-center" id="traverse">
+                    <tr></tr>
+                </table>
+            </div>
+            <div class="col-12 p-5 tf-tree example d-flex justify-content-center">
+                <ul id="tree-container"></ul>
+              </div>
+        </div>
+    </div>
+
+    
+    <iframe class="fixed-bottom" width="75px" height="75px" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1190917987&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+    
+
+    <script>
+        $(document).ready(function() {
+            let data = [];
+            let count = 0;
+            let parent = 0;
+            let i = 0;
+
+            $("#insertBtn").on("click", function() {
+                let inserted = parseInt($("#insert").val());
+
+                
+                if (!isNaN(inserted) && inserted < 10000) {
+                    data.push(inserted);
+
+                    if ((data.length - 1) % 2 == 0)
+                        parent = (data.length - 3) / 2;
+                    else
+                        parent = (data.length - 2) / 2;
+                
+                    // insert awal
+                    if (parent == -1) {
+                        $("#tree-container").append("<li><span class='tf-nc' id='t" + (data.length - 1) + "'>" + inserted + "</span></li>")
+                    }
+                    else if ((data.length - 1) % 2 == 1){
+                        $("#t" + parent).after("<ul><li><span class='tf-nc' id='t" + (data.length - 1) + "'>" + inserted + "</span></li></ul>")
+                    }
+                    else {
+                        $("#t" + parent).next().append("<li><span class='tf-nc' id='t" + (data.length - 1) + "'>" + inserted + "</span></li>")
+                    }
+
+                    // heap kan
+                    buildHeap(data);
+
+                    count++;
+                    printData();
+                    $("#insert").val("");
+                }
+                else if (inserted >= 10000) {
+                    alert("Angka terlalu besar!");
+                }
+                else {
+                    alert("Input harus angka!")
+                }
+            });
+
+            $("#delBtn").on("click", function(e){
+                e.preventDefault();
+                var id = 't' + (count - 1);
+
+                if (data.length - 1 % 2 == 0)
+                    parent = (data.length - 3) / 2;
+                else
+                    parent = (data.length - 2) / 2;
+
+                // data pertama dihapus, data terakhir dijadikan data pertama
+                data[0] = data[data.length - 1];
+                console.log(data[0]);
+                data.splice(data.length - 1, 1);
+
+                // ganti tampilan
+                $("#t0").html(data[0]);
+
+                if (parent == -1) {
+                    clear()
+                }
+                else if ((data.length - 1) % 2 == 1){
+                    document.getElementById(id).parentElement.remove();
+                    count--;
+                }
+                else {
+                    document.getElementById(id).parentElement.parentElement.remove();
+                    count--;
+                }
+
+                buildHeap(data);
+                printData();
+            });
+
+            $("#clearBtn").on("click", function(e){
+                data.splice(0, data.length);
+                clear();
+                printData();
+            });
+
+            $("#BFS").on("click", function() {
+                for (let j = 0; j < data.length; j++) {
+                    let animate = "changeColor 1s ease-in-out 1 " + j + "s";
+                    document.getElementById('t' + j).style.animation = animate;  
+
+                setTimeout(function() {
+                    removeAnimation();
+                }, (data.length + 1) * 1000);
+                }
+            });
+
+            $("#DFS").on("click", function() {
+                printInorder(0, 0);
+
+                setTimeout(function() {
+                    removeAnimation();
+                }, (i + 1) * 1000);
+
+                i = 0
+            })
+
+            function clear() {
+                parent = 0;
+                count = 0;
+                $("#tree-container").empty();
+            }
+
+            function printInorder(x) {
+                if (x >= data.length)
+                    return;
+
+                let animate = "changeColor 1s ease-in-out 1 " + i + "s";
+                document.getElementById('t' + x).style.animation = animate;      
+                i++;
+
+                printInorder(2 * x + 1, i);
+                printInorder(2 * x + 2, i);
+            }
+
+            function clear() {
+                console.log("clear");
+                parent = 0;
+                count = 0;
+                $("#tree-container").empty();
+            };
+
+            function printData() {
+                $("#array").find("tr").empty();
+
+                for(let i = 0; i < data.length; i++)
+                    $("#array").find("tr").append("<td>" + data[i] + "</td>");
+            }
+
+            function heapify(arr, N, i) {
+                var largest = i; // Initialize largest as root
+                var l = 2 * i + 1; // left = 2*i + 1
+                var r = 2 * i + 2; // right = 2*i + 2
+              
+                // If left child is larger than root
+                if (l < N && arr[l] > arr[largest])
+                    largest = l;
+              
+                // If right child is larger than largest so far
+                if (r < N && arr[r] > arr[largest])
+                    largest = r;
+              
+                // If largest is not root
+                 if (largest != i) {
+                    var swap = arr[i];
+                    var tmp1 = $('#t' + largest).html();
+                    var tmp2 = $('#t' + i).html();
+
+                    $("#t" + largest).css("background-color", "#d14b71");
+                    $("#t" + i).css("background-color", "#d14b71");
+
+                    setTimeout(function() {
+                        $('#t' + largest).html(tmp2);
+                        $('#t' + i).html(tmp1);
+                    }, 500);
+
+                    setTimeout(function() {
+                        $("#t" + largest).css("background-color", "black");
+                        $("#t" + i).css("background-color", "black");
+                    }, 500)
+
+                    // $('#t' + i).html(tmp1);
+                    // $('#t' + largest).html(tmp2);
+                    var swap = arr[i];
+                    arr[i] = arr[largest];
+                    arr[largest] = swap;
+
+                    printData();
+                    setTimeout(function() {
+                        heapify(arr, N, largest)
+                    }, 1500)
+                }
+            }
+             
+            function buildHeap(arr) {
+                var N = arr.length;
+                var i = Math.floor(N / 2) - 1
+                loop();
+
+                // Build heap (rearrange array)
+                function loop() {
+                    setTimeout(function() {
+                        heapify(arr, N, i)
+                        i--;
+                        if (i >= 0) {
+                            loop();
+                        }
+                    }, 1000)
+                }
+            }       
+            
+            function removeAnimation() {
+                for (let i = 0; i < data.length; i++) {
+                    document.getElementById("t" + i).style.animation = "";
+                }
+            }
+        })
+
+        setTimeout(function(){
+            $('.preloader').slideUp();
+        }, 3000);
+    </script>
+</body>
+</html>
